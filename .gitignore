@@ -1,0 +1,30 @@
+# Ignore database files
+*.sqlite3
+*.db
+
+# Ignore static files
+/staticfiles/
+/static/
+
+# Ignore media files
+/media/
+
+# Ignore environment variables file
+.env
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+# Ignore local development settings
+settings/local.py
+
+# Ignore virtual environment
+venv/
+Anda dapat menyalin kode di atas ke dalam file .gitignore di direktori proyek Django Anda. Pastikan untuk menjalankan perintah git add . setelah Anda menambahkan atau mengubah file .gitignore agar perubahan tersebut dimasukkan ke dalam Git repository. Dengan demikian, file-file yang tercantum dalam .gitignore tidak akan diikutsertakan dalam commit dan push ke remote repository.
+
+
+
+
+
+
