@@ -10,8 +10,8 @@ User = get_user_model()
 
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0)
-    total_commission = models.DecimalField(max_digits=10, decimal_places=2, blank=True, default=0)
+    total_amount = models.IntegerField(blank=True, default=0)
+    total_commission = models.IntegerField(blank=True, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def calculate_totals(self):
@@ -31,10 +31,10 @@ class TransactionDetail(models.Model):
     transaction = models.ForeignKey('Transaction', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=8, decimal_places=2, blank=True, default=0)
-    profit = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, default=0)
-    commission_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, default=0)
-    commission = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, default=0)
+    price = models.IntegerField(blank=True, default=0)
+    profit = models.IntegerField(blank=True, null=True, default=0)
+    commission_percentage = models.DecimalField(max_digits=8, decimal_places=2, blank=True, default=0)
+    commission = models.IntegerField(blank=True, null=True, default=0)
 
     def calculate_profit(self):
         cost_price = self.product.cost_price
@@ -42,18 +42,24 @@ class TransactionDetail(models.Model):
         profit = (selling_price - cost_price) * self.quantity
         return profit
 
-    def calculate_commission(self):
+    def calculate_full_commission(self):
         profit = self.calculate_profit()
         commission = self.product.commission_percentage * profit
-        return commission
-
+        return self.product.commission_percentage, commission
+    
+    def calculate_default_commission(self):
+        profit = self.calculate_profit()
+        commission = self.product.default_commission * profit
+        return self.product.default_commission, commission
     
     def save(self, *args, **kwargs):
         self.price = self.product.price
         self.profit = self.calculate_profit()
         if self.transaction.user.parent:
-            self.commission = self.calculate_commission()
-            self.commission_percentage = self.product.commission_percentage
+            self.commission_percentage, self.commission = self.calculate_full_commission()
+        else:
+            self.commission_percentage, self.commission = self.calculate_default_commission()
+
         super().save(*args, **kwargs)
 
 

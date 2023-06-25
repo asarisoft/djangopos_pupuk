@@ -4,11 +4,11 @@ class CashFlow(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=255)
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    income = models.DecimalField(max_digits=10, decimal_places=2)
-    expense = models.DecimalField(max_digits=10, decimal_places=2)
-    balance = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.IntegerField()
+    amount = models.IntegerField()
+    income = models.IntegerField()
+    expense = models.IntegerField()
+    balance = models.IntegerField()
 
 
     def save(self, *args, **kwargs):

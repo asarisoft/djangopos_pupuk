@@ -17,6 +17,7 @@ class MonthFilter(admin.SimpleListFilter):
             return queryset.filter(date__month=self.value())
         
 class CashFlowAdmin(admin.ModelAdmin):
+    list_display = ('date', 'description', 'income', 'expense', 'balance')
     list_filter = [MonthFilter]  # Add the custom month filter
 
 admin.site.register(CashFlow, CashFlowAdmin)

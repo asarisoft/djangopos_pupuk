@@ -4,6 +4,11 @@ from django.db import models
 from .managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
     username = models.CharField(max_length=30, null=True)
     full_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)

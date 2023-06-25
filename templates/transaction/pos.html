@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kasir POS</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Kasir POS</h1>
+  <form id="transaction-form">
+    <table id="item-table">
+      <tr>
+        <th>Nama Barang</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+      <tr>
+        <td>
+          <input type="text" name="item_name[]" class="item-name">
+        </td>
+        <td>
+          <input type="number" name="item_price[]" class="item-price">
+        </td>
+        <td>
+          <input type="number" name="item_quantity[]" class="item-quantity">
+        </td>
+        <td>
+          <input type="number" name="item_subtotal[]" class="item-subtotal" readonly>
+        </td>
+        <td>
+          <button type="button" class="remove-item">Hapus</button>
+        </td>
+      </tr>
+    </table>
+
+    <button type="button" id="add-item">Tambah Barang</button>
+
+    <h3>Total: <span id="total-amount">0</span></h3>
+
+    <button type="submit">Simpan Transaksi</button>
+  </form>
+
+  <script>
+    $(document).ready(function() {
+      // Menghitung total pembelian
+      function calculateTotal() {
+        var total = 0;
+        $(".item-subtotal").each(function() {
+          total += parseFloat($(this).val());
+        });
+        $("#total-amount").text(total.toFixed(2));
+      }
+
+      // Menghitung subtotal per item
+      function calculateSubtotal(row) {
+        var price = parseFloat($(row).find(".item-price").val());
+        var quantity = parseFloat($(row).find(".item-quantity").val());
+        var subtotal = price * quantity;
+        $(row).find(".item-subtotal").val(subtotal.toFixed(2));
+        calculateTotal();
+      }
+
+      // Menambahkan item transaksi baru
+      $("#add-item").click(function() {
+        var newRow = `<tr>
+                        <td>
+                          <input type="text" name="item_name[]" class="item-name">
+                        </td>
+                        <td>
+                          <input type="number" name="item_price[]" class="item-price">
+                        </td>
+                        <td>
+                          <input type="number" name="item_quantity[]" class="item-quantity">
+                        </td>
+                        <td>
+                          <input type="number" name="item_subtotal[]" class="item-subtotal" readonly>
+                        </td>
+                        <td>
+                          <button type="button" class="remove-item">Hapus</button>
+                        </td>
+                      </tr>`;
+        $("#item-table").append(newRow);
+      });
+
+      // Menghapus item transaksi
+      $(document).on("click", ".remove-item", function() {
+        $(this).closest("tr").remove();
+        calculateTotal();
+      });
+
+      // Menghitung subtotal saat mengubah harga atau jumlah
+      $(document).on("change", ".item-price, .item-quantity", function() {
+        var row = $(this).closest("tr");
+        calculateSubtotal(row);
+      });
+
+      // Menghitung total saat halaman dimuat
+      calculateTotal();
+    });
+  </script>
+</body>
+</html>
