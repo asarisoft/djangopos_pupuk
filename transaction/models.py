@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from product.models import Product
+from financial.models import Debt
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_save
-
 
 User = get_user_model()
 
@@ -13,12 +13,13 @@ class Transaction(models.Model):
     total_amount = models.IntegerField(blank=True, default=0)
     total_commission = models.IntegerField(blank=True, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
+    debt = models.ForeignKey(Debt, on_delete=models.CASCADE, null=True, blank=True)
 
     def calculate_totals(self):
         total_amount = sum(item.quantity * item.product.price for item in self.transactiondetail_set.all()) or 0
         total_commission = sum(item.commission for item in self.transactiondetail_set.all())
         return total_amount, total_commission
-
+    
     def save(self, *args, **kwargs):
         if not self.pk:  
             super().save(*args, **kwargs)
@@ -62,6 +63,26 @@ class TransactionDetail(models.Model):
 
         super().save(*args, **kwargs)
 
+        # Update or create Debt here
+        debt_amount = self.quantity * self.price  # Adjust the logic based on your requirements
+        
+        if self.transaction.debt:
+            # If Debt exists, update the amount
+            self.transaction.debt.amount += debt_amount
+            self.transaction.debt.save()
+        else:
+            # If Debt doesn't exist, create a new Debt
+            debt = Debt.objects.create(customer=self.transaction.user, transaction=self.transaction, amount=debt_amount)
+            self.transaction.debt = debt
+            self.transaction.save()
+
 
     def __str__(self):
         return f"{self.transaction} - {self.product.name}"
+    
+
+@receiver(post_save, sender=TransactionDetail)
+def update_transaction_totals(sender, instance, **kwargs):
+    transaction = instance.transaction
+    transaction.calculate_totals()
+    transaction.save()

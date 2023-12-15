@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'user',
     'product',
     'transaction',
-    'cashflow'
+    'cashflow',
+    'financial'
 ]
 
 AUTH_USER_MODEL = 'user.CustomUser'

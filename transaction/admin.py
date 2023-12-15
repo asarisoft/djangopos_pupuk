@@ -28,12 +28,6 @@ class TransactionAdmin(admin.ModelAdmin):
     date_hierarchy = 'timestamp'
     readonly_fields = ('total_amount', 'total_commission') 
     inlines = [TransactionDetailInline]
-    
-    # def save_related(self, request, form, formsets, change):
-    #     with transaction.atomic():
-    #         # Save the transaction details first
-    #         self.save_formsets(request, form, formsets, True)
 
-    #         # Save the transaction itself
-    #         super().save_related(request, form, formsets, change)
-
+    # class Media:
+    #     js = ('pupuk/admin.js',)
