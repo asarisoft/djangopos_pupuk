@@ -8,9 +8,9 @@ User = get_user_model()
 
 class Debt(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    remaining_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    amount = models.DecimalField(max_digits=10, decimal_places=0)
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+    remaining_amount = models.DecimalField(max_digits=10, decimal_places=0, default=0)
     due_date = models.DateField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     is_paid = models.BooleanField(default=False)
@@ -32,7 +32,7 @@ class Debt(models.Model):
 
 class Payment(models.Model):
     debt = models.ForeignKey(Debt, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(max_digits=10, decimal_places=0)
     payment_date = models.DateField()
     description = models.TextField(blank=True, null=True)
 

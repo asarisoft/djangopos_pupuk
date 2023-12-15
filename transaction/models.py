@@ -15,6 +15,15 @@ class Transaction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     debt = models.ForeignKey(Debt, on_delete=models.CASCADE, null=True, blank=True)
 
+    def formatted_total_amount(self):
+        return '{:,.2f}'.format(self.total_amount)
+
+    formatted_total_amount.admin_order_field = 'total_amount'  # Make it sortable in Django Admin
+
+    def formatted_total_commission(self):
+        return '{:,.2f}'.format(self.total_commission)
+    formatted_total_commission.admin_order_field = 'total_commission'  
+
     def calculate_totals(self):
         total_amount = sum(item.quantity * item.product.price for item in self.transactiondetail_set.all()) or 0
         total_commission = sum(item.commission for item in self.transactiondetail_set.all())
@@ -34,7 +43,7 @@ class TransactionDetail(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.IntegerField(blank=True, default=0)
     profit = models.IntegerField(blank=True, null=True, default=0)
-    commission_percentage = models.DecimalField(max_digits=8, decimal_places=2, blank=True, default=0)
+    commission_percentage = models.DecimalField(max_digits=8, decimal_places=0, blank=True, default=0)
     commission = models.IntegerField(blank=True, null=True, default=0)
 
     def calculate_profit(self):

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.db import transaction
+from django.contrib.humanize.templatetags import humanize
 from .models import Transaction, TransactionDetail
 from django import forms
 
@@ -22,12 +23,36 @@ class TransactionDetailInline(admin.TabularInline):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'total_amount', 'total_commission', 'timestamp')
-    # list_filter = ('user', 'timestamp')
+    list_display = ('user', 'formatted_total_amount', 'formatted_total_commission', 'timestamp', 'is_debt_paid', 'remaining_debt')
     search_fields = ('user__email', 'user__first_name', 'user__last_name')
     date_hierarchy = 'timestamp'
-    readonly_fields = ('total_amount', 'total_commission') 
+    readonly_fields = ('formatted_total_amount', 'formatted_total_commission') 
     inlines = [TransactionDetailInline]
+
+    def formatted_total_amount(self, obj):
+        return humanize.intcomma(obj.total_amount)
+
+    formatted_total_amount.admin_order_field = 'total_amount'  # Make it sortable in Django Admin
+
+    def formatted_total_commission(self, obj):
+        return humanize.intcomma(obj.total_commission)
+
+    formatted_total_commission.admin_order_field = 'total_commission'  # Make it sortable in Django Admin
+
+    def is_debt_paid(self, obj):
+        return obj.debt.is_paid
+
+    is_debt_paid.short_description = 'Debt Paid'
+    is_debt_paid.boolean = True  # Display as a boolean (checkmark or cross)
+
+    def remaining_debt(self, obj):
+        return humanize.intcomma(obj.debt.remaining_amount)
+
+    remaining_debt.short_description = 'Remaining Debt'
+
+    def get_queryset(self, request):
+        # Optimize queryset to fetch related debt data
+        return super().get_queryset(request).select_related('debt')
 
     # class Media:
     #     js = ('pupuk/admin.js',)
